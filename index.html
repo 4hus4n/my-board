@@ -198,28 +198,78 @@ body.short .size-dot { display: none; }
   position: fixed; inset: 0; z-index: 60;
   display: grid; place-items: center;
   background: var(--slate);
-  transition: opacity .45s ease;
+  transition: opacity .6s ease, transform .6s ease;
 }
-.splash.gone { opacity: 0; pointer-events: none; }
-.splash svg { width: min(92%, 900px); height: auto; overflow: visible; }
-.splash-l {
-  font-family: "Caveat", "Comic Sans MS", cursive; font-weight: 700; font-size: 220px;
-  fill: transparent; stroke: currentColor; stroke-width: 5; stroke-linejoin: round; stroke-linecap: round;
-  stroke-dasharray: 1800; stroke-dashoffset: 1800;
-  animation: write .5s ease-out forwards, inkfill .3s ease-out forwards;
-  animation-delay: var(--d), calc(var(--d) + .38s);
+.splash.gone { opacity: 0; transform: scale(1.03); pointer-events: none; }
+.splash-inner { display: grid; justify-items: center; }
+.splash-word {
+  display: flex;
+  font-family: "Caveat", "Comic Sans MS", cursive; font-weight: 700;
+  font-size: clamp(72px, 17vmin, 170px); line-height: 1;
 }
-.splash-line {
-  fill: none; stroke: var(--sun); stroke-width: 9; stroke-linecap: round;
-  stroke-dasharray: 1000; stroke-dashoffset: 1000;
-  animation: write .55s ease-out forwards; animation-delay: var(--d);
+.splash-word span {
+  display: inline-block;
+  opacity: 0;
+  clip-path: inset(-30% 105% -30% -15%);
+  transform: translateY(14px) rotate(-5deg);
+  text-shadow: 0 5px 0 rgba(0,0,0,.28);
+  animation: ink .8s cubic-bezier(.22, .8, .25, 1) forwards;
+  animation-delay: var(--d);
+  will-change: clip-path, transform, opacity;
+}
+.splash-word .gap { width: .3em; }
+@keyframes ink {
+  0% { opacity: 0; clip-path: inset(-30% 105% -30% -15%); transform: translateY(14px) rotate(-5deg); }
+  12% { opacity: 1; }
+  100% { opacity: 1; clip-path: inset(-30% -15% -30% -15%); transform: none; }
+}
+.splash-line { width: 100%; height: auto; margin-top: -4px; overflow: visible; }
+.splash-line path {
+  fill: none; stroke: var(--sun); stroke-width: 8; stroke-linecap: round;
+  stroke-dasharray: 700; stroke-dashoffset: 700;
+  animation: write .7s cubic-bezier(.4, 0, .2, 1) forwards; animation-delay: var(--d, 2.5s);
 }
 @keyframes write { to { stroke-dashoffset: 0; } }
-@keyframes inkfill { to { fill: currentColor; } }
+.splash-credit {
+  position: absolute; left: 0; right: 0; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  text-align: center; color: var(--muted); font-size: 16px; letter-spacing: .02em;
+  opacity: 0; animation: rise .9s ease forwards; animation-delay: 1.3s;
+}
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.cc {
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff4d5e, #ff8a2a, #ffe14d, #7be36b, #4dc3ff, #a77bff, #ff6ec7, #ff4d5e);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: ccflow 2.6s linear infinite;
+}
+@keyframes ccflow { from { background-position: 0% 0; } to { background-position: 200% 0; } }
+
+/* ---------- Finished a whole set ---------- */
+.finish {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; place-items: center;
+  background: rgba(8, 10, 18, .72);
+}
+.finish-card {
+  display: grid; justify-items: center; gap: 12px;
+  max-width: calc(100% - var(--b) * 2 - 60px); max-height: calc(100% - 24px);
+  padding: 16px 20px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 26px;
+  box-shadow: 0 0 0 5px var(--sun), 0 20px 50px rgba(0,0,0,.5);
+  animation: popin .5s cubic-bezier(.2, 1.5, .4, 1) both;
+}
+@keyframes popin { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.finish-title { font-family: "Fredoka", var(--font-ui); font-weight: 700; font-size: 26px; color: var(--sun); text-align: center; }
+.finish-card canvas { display: block; border-radius: 12px; max-width: 100%; }
+.finish-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.pill.sun { background: var(--sun); color: #1a1a1a; border-color: var(--sun); font-weight: 700; }
 
 @media (prefers-reduced-motion: reduce) {
-  .splash-l { animation: none; stroke-dashoffset: 0; fill: currentColor; }
-  .splash-line { animation: none; stroke-dashoffset: 0; }
+  .splash-word span { animation: none; opacity: 1; clip-path: none; transform: none; }
+  .splash-line path { animation: none; stroke-dashoffset: 0; }
+  .splash-credit, .cc, .finish-card { animation: none; opacity: 1; }
   .toast { transition: none; }
   .cheer-card, .cheer.out .cheer-card, .cheer-star, .cheer-text span { animation: none; }
 }
@@ -287,6 +337,9 @@ body.short .size-dot { display: none; }
       <button class="btn" id="autoNext" aria-pressed="true" aria-label="Go to the next letter when this one is traced" title="Auto next letter">
         <svg viewBox="0 0 24 24"><path d="M4 6l7 6-7 6z"/><path d="M12 6l7 6-7 6z"/></svg>
       </button>
+      <button class="btn" id="setDl" hidden aria-label="Download all traced letters" title="Download all traced letters">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 13v8M14.5 18l3 3 3-3"/></svg>
+      </button>
       <span class="count wide" id="letterCount">1 / 26</span>
       <span class="sep"></span>
     </div>
@@ -314,7 +367,22 @@ body.short .size-dot { display: none; }
 <div class="toast" id="toast" hidden></div>
 
 <div class="splash" id="splash" aria-label="My Board">
-  <svg id="splashSvg" viewBox="0 0 1000 320" role="img" aria-hidden="true"></svg>
+  <div class="splash-inner">
+    <div class="splash-word" id="splashWord"></div>
+    <svg class="splash-line" viewBox="0 0 600 40" aria-hidden="true"><path d="M14 26 Q 300 44 586 12"/></svg>
+  </div>
+  <div class="splash-credit">crafted by <span class="cc">clickandcraft</span> in Milandhoo</div>
+</div>
+
+<div class="finish" id="finish" hidden>
+  <div class="finish-card">
+    <div class="finish-title" id="finishTitle">You traced every letter!</div>
+    <canvas id="finishPreview"></canvas>
+    <div class="finish-row">
+      <button class="pill sun" id="finishDl">Download picture</button>
+      <button class="pill" id="finishClose">Close</button>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -572,11 +640,11 @@ body.short .size-dot { display: none; }
   /* ---------------- Letter tracing ---------------- */
   const thaana = Array.from({ length: 24 }, (_, i) => String.fromCharCode(0x0780 + i));
   const SETS = {
-    upper:  { label: 'ABC', chars: [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
-    lower:  { label: 'abc', chars: [...'abcdefghijklmnopqrstuvwxyz'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
-    num:    { label: '123', chars: [...'0123456789'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
-    thaana: { label: 'ހށނ', chars: thaana, font: '"Noto Sans Thaana", sans-serif', weight: 500, rtl: true },
-    arabic: { label: 'ابت', chars: [...'ابتثجحخدذرزسشصضطظعغفقكلمنهوي'], font: '"Noto Naskh Arabic", serif', weight: 500, rtl: true },
+    upper:  { name: 'Capital letters', label: 'ABC', chars: [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
+    lower:  { name: 'Small letters', label: 'abc', chars: [...'abcdefghijklmnopqrstuvwxyz'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
+    num:    { name: 'Numbers', label: '123', chars: [...'0123456789'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
+    thaana: { name: 'Thaana', label: 'ހށނ', chars: thaana, font: '"Noto Sans Thaana", sans-serif', weight: 500, rtl: true },
+    arabic: { name: 'Arabic', label: 'ابت', chars: [...'ابتثجحخدذرزسشصضطظعغفقكلمنهوي'], font: '"Noto Naskh Arabic", serif', weight: 500, rtl: true },
   };
   const trace = { on: false, set: 'upper', idx: 0, auto: true };
 
@@ -606,6 +674,7 @@ body.short .size-dot { display: none; }
   function renderTrace() {
     const set = SETS[trace.set];
     setBtn.textContent = set.label;
+    if (typeof renderSetDl === 'function') renderSetDl();
     setBtn.style.fontFamily = set.font; setBtn.style.fontWeight = set.weight;
     const ln = $('#letterNow');
     ln.textContent = set.chars[trace.idx];
@@ -709,7 +778,12 @@ body.short .size-dot { display: none; }
     gctx.strokeText(ch, x, baseY);
     gctx.setLineDash([]);
     // approximate pen-stroke thickness of the font at this size
-    geom = { ch, font: fontAt(fs), x, baseY, rtl: !!set.rtl, thick: fs * (set.lines ? 0.12 : 0.08) };
+    // tile area for the keepsake picture: same box for every letter of the set
+    const glyphH = (maxA + maxD) * k;
+    const th = Math.min(H, glyphH * 1.14), tw = Math.min(W, Math.max(maxW * k * 1.15, glyphH * 0.8));
+    const crop = { x: Math.max(0, cx - tw / 2), y: Math.max(0, cy - th / 2), w: tw, h: th };
+    crop.w = Math.min(crop.w, W - crop.x); crop.h = Math.min(crop.h, H - crop.y);
+    geom = { ch, font: fontAt(fs), x, baseY, rtl: !!set.rtl, thick: fs * (set.lines ? 0.12 : 0.08), crop };
   }
 
   /* ---------------- Tracing check: has the letter been traced? ---------------- */
@@ -884,6 +958,7 @@ body.short .size-dot { display: none; }
 
   async function celebrate() {
     advancing = true;
+    snapshot();
     drawGuide(true);
     const k = Math.floor(Math.random() * PRAISE.length);
     showCheer(PRAISE[k]);
@@ -897,8 +972,8 @@ body.short .size-dot { display: none; }
     stepLetter(1);
     if (!reduce) await slide(['translateX(105%)', 'translateX(0)'], 'ease-out');
     advancing = false;
-    if (last) toast('All done! Starting again from the first letter.');
-    say();
+    if (last) { completed[trace.set] = true; renderSetDl(); showFinish(trace.set); }
+    else say();
   }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   function slide(frames, easing) {
@@ -1004,7 +1079,10 @@ body.short .size-dot { display: none; }
     o.drawImage(ink, 0, 0);
     const d = new Date(), z = (n) => String(n).padStart(2, '0');
     const name = `drawing-${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}.png`;
-    out.toBlob(async (blob) => {
+    savePng(out, name);
+  };
+  function savePng(canvas, name) {
+    canvas.toBlob(async (blob) => {
       if (!blob) { toast('Could not make the picture. Try again.'); return; }
       if (dlNs) {
         try { await dlNs.save({ filename: name, data: blob }); toast('Picture saved'); }
@@ -1018,7 +1096,115 @@ body.short .size-dot { display: none; }
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       toast('Picture saved');
     }, 'image/png');
-  };
+  }
+
+  /* ---------------- Keepsake: every traced letter of a set in one picture ---------------- */
+  const snaps = { upper: [], lower: [], num: [], thaana: [], arabic: [] };
+  const completed = {};
+  const TILE_H = 240;
+  function snapshot() {
+    if (!geom) return;
+    const c = geom.crop, sc = TILE_H / c.h;
+    const t = document.createElement('canvas');
+    t.width = Math.max(1, Math.round(c.w * sc)); t.height = TILE_H;
+    const o = t.getContext('2d');
+    o.fillStyle = BG; o.fillRect(0, 0, t.width, t.height);
+    const sx = Math.round(c.x * DPR), sy = Math.round(c.y * DPR);
+    const sw = Math.min(guide.width - sx, Math.round(c.w * DPR)), sh = Math.min(guide.height - sy, Math.round(c.h * DPR));
+    o.drawImage(guide, sx, sy, sw, sh, 0, 0, t.width, t.height);
+    o.drawImage(ink, sx, sy, sw, sh, 0, 0, t.width, t.height);
+    snaps[trace.set][trace.idx] = t;
+  }
+  function watermark(o, x, y, size, align) {
+    const a = 'crafted by ', b = 'clickandcraft', c = ' in Milandhoo';
+    o.font = `400 ${size}px Andika, sans-serif`;
+    const wa = o.measureText(a).width, wc = o.measureText(c).width;
+    o.font = `700 ${size}px Andika, sans-serif`;
+    const wb = o.measureText(b).width;
+    const total = wa + wb + wc;
+    let x0 = align === 'center' ? x - total / 2 : align === 'right' ? x - total : x;
+    o.textAlign = 'left'; o.textBaseline = 'alphabetic';
+    o.font = `400 ${size}px Andika, sans-serif`; o.fillStyle = '#8d94b8';
+    o.fillText(a, x0, y);
+    const g = o.createLinearGradient(x0 + wa, 0, x0 + wa + wb, 0);
+    ['#ff4d5e', '#ff8a2a', '#ffe14d', '#7be36b', '#4dc3ff', '#a77bff', '#ff6ec7'].forEach((col, i, arr) => g.addColorStop(i / (arr.length - 1), col));
+    o.font = `700 ${size}px Andika, sans-serif`; o.fillStyle = g;
+    o.fillText(b, x0 + wa, y);
+    o.font = `400 ${size}px Andika, sans-serif`; o.fillStyle = '#8d94b8';
+    o.fillText(c, x0 + wa + wb, y);
+  }
+  function buildCollage(key) {
+    const set = SETS[key], n = set.chars.length, tiles = snaps[key];
+    const first = tiles.find(Boolean);
+    const tw = first ? first.width : Math.round(TILE_H * 0.8), th = TILE_H;
+    const cols = Math.min(n, Math.ceil(Math.sqrt(n * 1.6))), rows = Math.ceil(n / cols);
+    const gap = 14, m = 40, head = 120, foot = 80;
+    const cv = document.createElement('canvas');
+    cv.width = m * 2 + cols * tw + (cols - 1) * gap;
+    cv.height = head + rows * th + (rows - 1) * gap + foot;
+    const o = cv.getContext('2d');
+    o.fillStyle = '#0b0e18'; o.fillRect(0, 0, cv.width, cv.height);
+    // header
+    o.textBaseline = 'alphabetic'; o.textAlign = 'left';
+    o.font = '700 64px Caveat, "Comic Sans MS", cursive'; o.fillStyle = '#ffd84a';
+    o.fillText('My Board', m, 78);
+    const titleW = o.measureText('My Board').width;
+    o.font = '700 30px Andika, sans-serif'; o.fillStyle = '#eef0fa';
+    o.fillText(`${set.name}  ${set.label}`, m + titleW + 24, 74);
+    const d = new Date();
+    o.font = '400 22px Andika, sans-serif'; o.fillStyle = '#8d94b8'; o.textAlign = 'right';
+    o.fillText(d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }), cv.width - m, 74);
+    // tiles (right-to-left for Thaana and Arabic)
+    for (let i = 0; i < n; i++) {
+      const r = Math.floor(i / cols); let c = i % cols;
+      if (set.rtl) c = cols - 1 - c;
+      const x = m + c * (tw + gap), y = head + r * (th + gap);
+      o.save();
+      o.beginPath(); o.roundRect ? o.roundRect(x, y, tw, th, 16) : o.rect(x, y, tw, th); o.clip();
+      if (tiles[i]) o.drawImage(tiles[i], x, y, tw, th);
+      else {
+        o.fillStyle = '#141828'; o.fillRect(x, y, tw, th);
+        o.font = `${set.weight} ${th * 0.55}px ${set.font}`; o.textAlign = 'center'; o.textBaseline = 'middle';
+        o.direction = set.rtl ? 'rtl' : 'ltr';
+        o.fillStyle = 'rgba(238,240,250,0.12)'; o.fillText(set.chars[i], x + tw / 2, y + th / 2);
+        o.direction = 'ltr';
+      }
+      o.restore();
+      o.strokeStyle = '#313858'; o.lineWidth = 2;
+      o.beginPath(); o.roundRect ? o.roundRect(x, y, tw, th, 16) : o.rect(x, y, tw, th); o.stroke();
+    }
+    // faint diagonal watermark across the picture, and a clear one at the bottom
+    o.save();
+    o.translate(cv.width / 2, (head + cv.height - foot) / 2); o.rotate(-0.35);
+    o.globalAlpha = 0.07; o.font = `700 ${Math.round(cv.width / 14)}px Andika, sans-serif`;
+    o.fillStyle = '#ffffff'; o.textAlign = 'center'; o.textBaseline = 'middle';
+    o.fillText('crafted by clickandcraft in Milandhoo', 0, 0);
+    o.restore();
+    watermark(o, cv.width / 2, cv.height - 32, 26, 'center');
+    return cv;
+  }
+  let finishKey = null;
+  function showFinish(key) {
+    finishKey = key;
+    const cv = buildCollage(key);
+    const pv = $('#finishPreview');
+    const maxW = W - $('.side.left').offsetWidth - $('.side.right').offsetWidth - 100, maxH = H - 170;
+    const sc = Math.min(maxW / cv.width, maxH / cv.height, 1);
+    pv.width = Math.round(cv.width * sc * DPR); pv.height = Math.round(cv.height * sc * DPR);
+    pv.style.width = Math.round(cv.width * sc) + 'px'; pv.style.height = Math.round(cv.height * sc) + 'px';
+    pv.getContext('2d').drawImage(cv, 0, 0, pv.width, pv.height);
+    $('#finishTitle').textContent = `You traced all the ${SETS[key].name.toLowerCase()}!`;
+    $('#finish').hidden = false;
+    playClip('P' + Math.floor(Math.random() * 6));
+  }
+  function downloadSet(key) {
+    const d = new Date(), z = (x) => String(x).padStart(2, '0');
+    savePng(buildCollage(key), `my-board-${key}-${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}.png`);
+  }
+  function renderSetDl() { $('#setDl').hidden = !completed[trace.set]; }
+  $('#finishDl').onclick = () => { if (finishKey) downloadSet(finishKey); };
+  $('#finishClose').onclick = () => { $('#finish').hidden = true; say(); };
+  $('#setDl').onclick = () => showFinish(trace.set);
 
   /* ---------------- Full screen ---------------- */
   const root = document.documentElement;
@@ -1108,47 +1294,34 @@ body.short .size-dot { display: none; }
 
   /* ---------------- Start-up animation (about 4 seconds, tap to skip) ---------------- */
   (async function splashIntro() {
-    const splash = $('#splash'), svg = $('#splashSvg');
-    const NS = 'http://www.w3.org/2000/svg';
+    const splash = $('#splash'), wordEl = $('#splashWord');
     const word = 'My Board';
     const colors = ['#ff4d5e', '#ff8a2a', null, '#ffe14d', '#7be36b', '#4dc3ff', '#a77bff', '#ff6ec7'];
     let done = false;
     const finish = () => {
       if (done) return; done = true;
       splash.classList.add('gone');
-      setTimeout(() => splash.remove(), 500);
+      setTimeout(() => splash.remove(), 650);
     };
     splash.addEventListener('pointerdown', finish);
-    // wait (briefly) for the handwriting font so letters are placed with real widths
-    try { await Promise.race([document.fonts.load('700 220px Caveat', word), wait(1200)]); } catch (_) {}
-    const m = document.createElement('canvas').getContext('2d');
-    m.font = '700 220px Caveat, "Comic Sans MS", cursive';
-    const total = m.measureText(word).width;
-    let x = 500 - total / 2, d = 0.15;
-    const STEP = 0.36;
+    // wait (briefly) for the handwriting font so letters never swap mid-animation
+    try { await Promise.race([document.fonts.load('700 120px Caveat', word), wait(900)]); } catch (_) {}
+    let d = 0.15;
+    const STEP = 0.27;
     [...word].forEach((ch, i) => {
-      const w = m.measureText(ch).width;
-      if (ch !== ' ') {
-        const t = document.createElementNS(NS, 'text');
-        t.setAttribute('class', 'splash-l');
-        t.setAttribute('x', x.toFixed(1)); t.setAttribute('y', '215');
-        t.style.color = colors[i] || '#eef0fa';
-        t.style.setProperty('--d', d.toFixed(2) + 's');
-        t.textContent = ch;
-        svg.appendChild(t);
+      const sp = document.createElement('span');
+      if (ch === ' ') { sp.className = 'gap'; d += STEP * 0.4; }
+      else {
+        sp.textContent = ch;
+        sp.style.color = colors[i] || '#eef0fa';
+        sp.style.setProperty('--d', d.toFixed(2) + 's');
         d += STEP;
-      } else d += STEP * 0.4;
-      x += w;
+      }
+      wordEl.appendChild(sp);
     });
-    // a swoosh underline after the last letter
-    const line = document.createElementNS(NS, 'path');
-    const x0 = 500 - total / 2, x1 = 500 + total / 2;
-    line.setAttribute('d', `M${x0 + 10} 268 Q 500 ${300} ${x1 - 10} 252`);
-    line.setAttribute('class', 'splash-line');
-    line.style.setProperty('--d', (d + 0.1).toFixed(2) + 's');
-    svg.appendChild(line);
+    document.querySelector('.splash-line path').style.setProperty('--d', (d + 0.25).toFixed(2) + 's');
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(finish, reduce ? 1200 : 4000);
+    setTimeout(finish, reduce ? 1500 : 4200);
   })();
 
   /* ---------------- Start ---------------- */
