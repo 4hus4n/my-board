@@ -6,6 +6,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Caveat:wght@700&family=Fredoka:wght@700&family=Noto+Naskh+Arabic:wght@500&family=Noto+Sans+Thaana:wght@500&display=swap">
 <style>
+/* Optional Dhivehi font: place the file at fonts/MV_AammuFK_Regular.ttf next to this page.
+   When it is missing, Thaana falls back to Noto Sans Thaana. */
+@font-face { font-family: "MV Aammu FK"; src: url("fonts/MV_AammuFK_Regular.ttf") format("truetype"); font-display: swap; }
 /* Layout: full-bleed drawing slate; one floating tool bar at the bottom, tracing bar at the top. Single dark look by design. */
 :root {
   --slate: #10131f;      /* drawing surface */
@@ -643,8 +646,9 @@ body.short .size-dot { display: none; }
     upper:  { name: 'Capital letters', label: 'ABC', chars: [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
     lower:  { name: 'Small letters', label: 'abc', chars: [...'abcdefghijklmnopqrstuvwxyz'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
     num:    { name: 'Numbers', label: '123', chars: [...'0123456789'], font: 'Andika, "Trebuchet MS", sans-serif', weight: 700, lines: true },
-    thaana: { name: 'Thaana', label: 'ހށނ', chars: thaana, font: '"Noto Sans Thaana", sans-serif', weight: 500, rtl: true },
-    arabic: { name: 'Arabic', label: 'ابت', chars: [...'ابتثجحخدذرزسشصضطظعغفقكلمنهوي'], font: '"Noto Naskh Arabic", serif', weight: 500, rtl: true },
+    thaana: { name: 'Thaana', label: 'ހށނ', chars: thaana, font: '"MV Aammu FK", "Noto Sans Thaana", sans-serif', weight: 500, rtl: true },
+    arabic: { name: 'Arabic', label: 'ابت', chars: [...'ابتثجحخدذرزسشصضطظعغفقكلمنهوي'], font: '"Noto Naskh Arabic", serif', weight: 500, rtl: true,
+              liftToMid: 'جحرعمنوي' },  // letters that hang low: raise them so their top meets the dashed line
   };
   const trace = { on: false, set: 'upper', idx: 0, auto: true };
 
@@ -769,13 +773,19 @@ body.short .size-dot { display: none; }
       const mm = gctx.measureText(ch);
       if (mm.actualBoundingBoxLeft || mm.actualBoundingBoxRight) x = cx + (mm.actualBoundingBoxLeft - mm.actualBoundingBoxRight) / 2;
     }
+    // some Arabic letters sit low; lift them so their top touches the dashed line
+    let glyphY = baseY;
+    if (set.liftToMid && set.liftToMid.includes(ch)) {
+      const top = baseY - gctx.measureText(ch).actualBoundingBoxAscent, midY = baseY - xH;
+      if (top > midY) glyphY = baseY - (top - midY);
+    }
     gctx.fillStyle = success ? 'rgba(255,216,74,0.35)' : 'rgba(238,240,250,0.07)';
-    gctx.fillText(ch, x, baseY);
+    gctx.fillText(ch, x, glyphY);
     gctx.setLineDash(success ? [] : [Math.max(6, fs * 0.035), Math.max(5, fs * 0.028)]);
     gctx.lineWidth = Math.max(2.5, fs * 0.012);
     gctx.lineJoin = 'round'; gctx.lineCap = 'round';
     gctx.strokeStyle = success ? 'rgba(255,216,74,0.95)' : 'rgba(238,240,250,0.6)';
-    gctx.strokeText(ch, x, baseY);
+    gctx.strokeText(ch, x, glyphY);
     gctx.setLineDash([]);
     // approximate pen-stroke thickness of the font at this size
     // tile area for the keepsake picture: same box for every letter of the set
@@ -783,7 +793,7 @@ body.short .size-dot { display: none; }
     const th = Math.min(H, glyphH * 1.14), tw = Math.min(W, Math.max(maxW * k * 1.15, glyphH * 0.8));
     const crop = { x: Math.max(0, cx - tw / 2), y: Math.max(0, cy - th / 2), w: tw, h: th };
     crop.w = Math.min(crop.w, W - crop.x); crop.h = Math.min(crop.h, H - crop.y);
-    geom = { ch, font: fontAt(fs), x, baseY, rtl: !!set.rtl, thick: fs * (set.lines ? 0.12 : 0.08), crop };
+    geom = { ch, font: fontAt(fs), x, baseY: glyphY, rtl: !!set.rtl, thick: fs * (set.lines ? 0.12 : 0.08), crop };
   }
 
   /* ---------------- Tracing check: has the letter been traced? ---------------- */
@@ -1061,6 +1071,7 @@ body.short .size-dot { display: none; }
     Promise.all([
       document.fonts.load('700 100px Andika', 'Aag'),
       document.fonts.load('500 100px "Noto Sans Thaana"', thaana[0]),
+      document.fonts.load('500 100px "MV Aammu FK"', thaana[0]),
       document.fonts.load('500 100px "Noto Naskh Arabic"', 'ب'),
     ]).catch(() => {}).then(drawGuide);
     document.fonts.ready.then(drawGuide);

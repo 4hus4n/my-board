@@ -15,3 +15,8 @@ The page plays `sounds/arabic/<name>.mp3` when the file exists (alif, ba, ta, th
 daal, thaal, ra, zay, siin, shiin, saad, daad, taa, thaa, ayn, ghayn, fa, qaf, kaf, lam, miim, nuun,
 ha, waw, ya). Otherwise it uses the built-in voice. The `sounds/` folder is not kept in this repo;
 add it on the server.
+
+## Dhivehi font
+
+Thaana letters use MV Aammu FK when `fonts/MV_AammuFK_Regular.ttf` is on the server,
+otherwise Noto Sans Thaana. The `fonts/` folder is not kept in this repo; add it on the server.
