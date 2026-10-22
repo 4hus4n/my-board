@@ -469,8 +469,8 @@ body.rotated #app { transform-origin: top left; transform: rotate(90deg) transla
     const b = document.body.classList;
     b.toggle('rotated', rotated);
     b.toggle('short', H < 460);
-    // big buttons: five per side must fit the height (phones ~60px, tablets up to 88px)
-    const btn = Math.max(48, Math.min(88, Math.floor((H - 36 - 4 * 8) / 5)));
+    // button size follows the screen: about 54px on phones, up to 76px on tablets
+    const btn = Math.max(46, Math.min(76, Math.round(H * 0.14)));
     document.documentElement.style.setProperty('--b', btn + 'px');
     for (const c of [ink, guide]) {
       c.width = Math.round(W * DPR); c.height = Math.round(H * DPR);
