@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#10131f">
 <title>My Board</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="mobile-web-app-capable" content="yes">
@@ -309,7 +315,9 @@ body.rotated #app { transform-origin: top left; transform: rotate(90deg) transla
   .cheer-card, .cheer.out .cheer-card, .cheer-star, .cheer-text span { animation: none; }
 }
 </style>
-
+<style>html,body{margin:0;height:100%}</style>
+</head>
+<body>
 <div id="app">
 <canvas id="guide"></canvas>
 <canvas id="ink" aria-label="Drawing area"></canvas>
@@ -1412,3 +1420,5 @@ body.rotated #app { transform-origin: top left; transform: rotate(90deg) transla
   renderFs();
 })();
 </script>
+</body>
+</html>
