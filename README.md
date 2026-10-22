@@ -20,3 +20,14 @@ add it on the server.
 
 Thaana letters use MV Aammu FK when `fonts/MV_AammuFK_Regular.ttf` is on the server,
 otherwise Noto Sans Thaana. The `fonts/` folder is not kept in this repo; add it on the server.
+
+## Android app
+
+Every push to `main` builds the Android app on GitHub (see `.github/workflows/android.yml`) and
+publishes it as `my-board.apk` on the **apk** release:
+https://github.com/4hus4n/my-board/releases/latest/download/my-board.apk
+
+The app is in `android/`: a full-screen, landscape WebView that loads `index.html` with the fonts
+bundled (works offline). Pictures are saved to Pictures/My Board. Back is blocked while the child
+lock is on. The signing key is `android/app/myboard.keystore`; keep it, because Android only installs
+updates signed with the same key.

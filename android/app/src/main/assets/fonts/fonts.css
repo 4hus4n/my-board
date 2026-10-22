@@ -1,0 +1,7 @@
+/* Fonts bundled with the Android app (all SIL Open Font License) */
+@font-face { font-family: "Andika"; font-weight: 400; font-display: swap; src: url("andika-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Andika"; font-weight: 700; font-display: swap; src: url("andika-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Caveat"; font-weight: 700; font-display: swap; src: url("caveat-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Fredoka"; font-weight: 700; font-display: swap; src: url("fredoka-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Noto Sans Thaana"; font-weight: 500; font-display: swap; src: url("noto-sans-thaana-thaana-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Noto Naskh Arabic"; font-weight: 500; font-display: swap; src: url("noto-naskh-arabic-arabic-500-normal.woff2") format("woff2"); }

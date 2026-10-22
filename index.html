@@ -1164,7 +1164,16 @@ body.rotated #app { transform-origin: top left; transform: rotate(90deg) transla
     const name = `drawing-${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}.png`;
     savePng(out, name);
   };
+  // Inside the Android app, pictures are saved to the phone's Pictures/My Board folder
+  const nativeApp = window.MyBoardApp || null;
   function savePng(canvas, name) {
+    if (nativeApp) {
+      try {
+        const ok = nativeApp.savePng(name, canvas.toDataURL('image/png').split(',')[1]);
+        toast(ok ? 'Picture saved to Pictures › My Board' : 'Could not save the picture');
+      } catch (_) { toast('Could not save the picture'); }
+      return;
+    }
     canvas.toBlob(async (blob) => {
       if (!blob) { toast('Could not make the picture. Try again.'); return; }
       if (dlNs) {
@@ -1332,6 +1341,7 @@ body.rotated #app { transform-origin: top left; transform: rotate(90deg) transla
 
   function setLocked(v) {
     locked = v;
+    try { nativeApp && nativeApp.setLocked(v); } catch (_) {}
     document.body.classList.toggle('locked', v);
     $('#lockIcon').innerHTML = v ? LOCKED_ICON : OPEN_ICON;
     lockBtn.setAttribute('aria-label', v ? 'Locked. Hold to unlock' : 'Child lock');
@@ -1418,6 +1428,7 @@ body.rotated #app { transform-origin: top left; transform: rotate(90deg) transla
   resize();
   updateUndo();
   renderFs();
+  if (nativeApp) $('#fs').hidden = true;   // the app is always full screen
 })();
 </script>
 </body>

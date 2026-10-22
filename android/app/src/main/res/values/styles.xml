@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Board" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/slate</item>
+        <item name="android:statusBarColor">@color/slate</item>
+        <item name="android:navigationBarColor">@color/slate</item>
+    </style>
+    <color name="slate">#10131F</color>
+</resources>

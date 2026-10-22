@@ -1,0 +1,43 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildNumber = Integer.parseInt(System.getenv('VERSION_CODE') ?: '1')
+
+android {
+    namespace 'mv.clickandcraft.myboard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'mv.clickandcraft.myboard'
+        minSdk 24
+        targetSdk 34
+        versionCode buildNumber
+        versionName "1.0.${buildNumber}"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('myboard.keystore')
+            storePassword 'myboard-kids'
+            keyAlias 'myboard'
+            keyPassword 'myboard-kids'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
